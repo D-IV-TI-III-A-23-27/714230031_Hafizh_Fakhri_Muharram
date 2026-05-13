@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Visualisasi interaktif arsitektur algoritma Long Short-Term Memory (LSTM) – pelajari cara kerja Forget Gate, Input Gate, dan Output Gate." />
+  <title>Arsitektur Algoritma LSTM – Visualisasi Interaktif</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- MathJax CDN -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+      },
+      svg: { fontCache: 'global' },
+      startup: {
+        pageReady: () => {
+          return MathJax.startup.defaultPageReady();
+        },
+      },
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       A. HEADER
+       ============================================================ -->
+  <header class="header" id="header">
+    <div class="container">
+      <div class="badge"><span class="dot"></span> Deep Learning</div>
+      <h1>Arsitektur Algoritma LSTM</h1>
+      <h2>Long Short-Term Memory: Visualisasi Interaktif &amp; Alur Kerja</h2>
+      <p class="desc">
+        LSTM (<em>Long Short-Term Memory</em>) adalah arsitektur jaringan saraf tiruan jenis
+        <strong>Recurrent Neural Network (RNN)</strong> yang dirancang khusus untuk mengatasi masalah
+        <em>vanishing gradient</em>. Dengan mekanisme gerbang (<em>gating mechanism</em>) yang unik,
+        LSTM mampu mempelajari dan mengingat <strong>dependensi jangka panjang</strong> dalam data
+        sekuensial — seperti teks, audio, dan data time-series.
+      </p>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       B. VISUALISASI INTERAKTIF
+       ============================================================ -->
+  <section class="section" id="visualisasi">
+    <div class="container">
+      <div class="section-title">
+        <h2>Visualisasi Interaktif Sel LSTM</h2>
+        <p>Klik salah satu gerbang untuk melihat penjelasan detail beserta rumus matematikanya.</p>
+      </div>
+
+      <div class="interactive">
+        <!-- Kolom Kiri: Diagram -->
+        <div class="diagram-wrapper">
+          <span class="diagram-label">LSTM Cell Diagram</span>
+
+          <!-- Cell State Line -->
+          <div class="cell-state-line">
+            <span class="cell-state-tag">C<sub>t-1</sub></span>
+            <span class="cell-state-tag">Cell State ━━▶</span>
+            <span class="cell-state-tag">C<sub>t</sub></span>
+          </div>
+
+          <!-- Gate blocks -->
+          <div class="gates-row">
+            <div class="gate-block" data-gate="forget" id="gate-forget">
+              <div class="gate-icon">σ</div>
+              <div class="gate-name">Forget Gate</div>
+              <div class="gate-symbol">f<sub>t</sub></div>
+            </div>
+            <div class="gate-block" data-gate="input" id="gate-input">
+              <div class="gate-icon">σ+</div>
+              <div class="gate-name">Input Gate</div>
+              <div class="gate-symbol">i<sub>t</sub> · C̃<sub>t</sub></div>
+            </div>
+            <div class="gate-block" data-gate="output" id="gate-output">
+              <div class="gate-icon">σ</div>
+              <div class="gate-name">Output Gate</div>
+              <div class="gate-symbol">o<sub>t</sub></div>
+            </div>
+          </div>
+
+          <!-- Data flow -->
+          <div class="data-flow">
+            <span class="flow-tag">h<sub>t-1</sub></span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-tag">x<sub>t</sub></span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-tag">Gates</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-tag">h<sub>t</sub></span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-tag">y<sub>t</sub></span>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Kontrol -->
+        <div class="controls-panel">
+          <div class="gate-buttons">
+            <button class="gate-btn" data-gate="forget" id="btn-forget">
+              <span class="btn-dot"></span>
+              1. Forget Gate
+            </button>
+            <button class="gate-btn" data-gate="input" id="btn-input">
+              <span class="btn-dot"></span>
+              2. Input Gate
+            </button>
+            <button class="gate-btn" data-gate="output" id="btn-output">
+              <span class="btn-dot"></span>
+              3. Output Gate
+            </button>
+          </div>
+
+          <!-- Terminal-style info panel -->
+          <div class="info-terminal" id="info-terminal">
+            <div class="terminal-header">
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-title">lstm-explain.sh</span>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+              <div class="placeholder-text">
+                <span class="icon">⚙️</span>
+                <span>Pilih salah satu gerbang di atas<br/>untuk melihat penjelasan &amp; rumus</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       C. PROSES LANGKAH DEMI LANGKAH
+       ============================================================ -->
+  <section class="section" id="langkah">
+    <div class="container">
+      <div class="section-title">
+        <h2>Proses Langkah demi Langkah</h2>
+        <p>Empat tahapan utama dalam satu siklus pemrosesan sel LSTM.</p>
+      </div>
+
+      <div class="steps-grid">
+        <!-- Step 1 -->
+        <div class="card card--pink animate-in">
+          <div class="step-number">1</div>
+          <h3>Forget Gate</h3>
+          <p>Memutuskan informasi mana dari masa lalu (cell state sebelumnya) yang harus <strong>dibuang</strong>. Sigmoid menghasilkan nilai 0–1: 0 = buang, 1 = pertahankan sepenuhnya.</p>
+          <div class="formula-box">
+            $$f_t = \sigma(W_f \cdot [h_{t-1},\, x_t] + b_f)$$
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="card card--green animate-in">
+          <div class="step-number">2</div>
+          <h3>Input Gate</h3>
+          <p>Menentukan informasi baru apa yang akan <strong>disimpan</strong> ke cell state. Sigmoid memilih nilai yang di-update, tanh membuat vektor kandidat baru.</p>
+          <div class="formula-box">
+            $$i_t = \sigma(W_i \cdot [h_{t-1},\, x_t] + b_i)$$
+            $$\tilde{C}_t = \tanh(W_C \cdot [h_{t-1},\, x_t] + b_C)$$
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="card card--cyan animate-in">
+          <div class="step-number">3</div>
+          <h3>Update Cell State</h3>
+          <p>Menyatukan memori lama yang tersisa (setelah forget gate) dengan kandidat memori baru dari input gate menjadi <strong>cell state</strong> terbaru.</p>
+          <div class="formula-box">
+            $$C_t = f_t \ast C_{t-1} + i_t \ast \tilde{C}_t$$
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="card card--purple animate-in">
+          <div class="step-number">4</div>
+          <h3>Output Gate</h3>
+          <p>Menentukan <strong>hidden state</strong> output berdasarkan cell state yang difilter. Sigmoid memilih bagian yang di-output, lalu dikalikan tanh(C<sub>t</sub>).</p>
+          <div class="formula-box">
+            $$o_t = \sigma(W_o \cdot [h_{t-1},\, x_t] + b_o)$$
+            $$h_t = o_t \ast \tanh(C_t)$$
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       D. KELEBIHAN & KEKURANGAN
+       ============================================================ -->
+  <section class="section" id="proscons">
+    <div class="container">
+      <div class="section-title">
+        <h2>Kelebihan &amp; Kekurangan</h2>
+        <p>Evaluasi arsitektur LSTM untuk membantu memahami kapan sebaiknya digunakan.</p>
+      </div>
+
+      <div class="proscons-grid">
+        <!-- Kelebihan -->
+        <div class="proscons-card pros">
+          <h3><span class="icon">✅</span> Kelebihan</h3>
+          <ul>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Mengatasi Vanishing Gradient</strong> — Mekanisme gerbang memungkinkan gradien mengalir stabil melalui banyak timestep selama pelatihan.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Mengingat Pola Jangka Panjang</strong> — Cell state memungkinkan jaringan menyimpan informasi relevan dalam jangka waktu yang panjang.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Akurasi Tinggi untuk Time-Series</strong> — Sangat efektif pada tugas prediksi sekuensial seperti prakiraan cuaca, harga saham, dan NLP.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Fleksibel</strong> — Dapat diterapkan pada berbagai jenis data sekuensial: teks, audio, video, dan sensor.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Kekurangan -->
+        <div class="proscons-card cons">
+          <h3><span class="icon">⚠️</span> Kekurangan</h3>
+          <ul>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Komputasi Berat &amp; Lambat</strong> — Struktur gerbang yang kompleks menyebabkan waktu pelatihan yang lebih lama dibanding model sederhana.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Butuh Memori Besar</strong> — Banyak parameter (4× lebih banyak dari RNN biasa) sehingga membutuhkan RAM/GPU yang signifikan.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Rawan Overfitting</strong> — Pada dataset kecil, model cenderung menghafal data latih dan gagal generalisasi ke data baru.</span>
+            </li>
+            <li>
+              <span class="bullet">▹</span>
+              <span><strong>Sulit Diparalelkan</strong> — Sifat sekuensial RNN membuat pelatihan sulit diparalelkan, berbeda dengan arsitektur Transformer.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 <span>LSTM Visualization</span> — Dibuat untuk tujuan pembelajaran interaktif.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
